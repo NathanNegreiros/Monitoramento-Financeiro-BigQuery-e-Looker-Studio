@@ -1,51 +1,85 @@
-# Monitoramento de Vendas – BigQuery + Looker Studio  
+# Monitoramento de Vendas — BigQuery e Looker Studio
 
-Este projeto tem como objetivo criar um **painel interativo de monitoramento de vendas** utilizando:  
+Projeto de análise e monitoramento de vendas desenvolvido com consultas em SQL no Google BigQuery e visualização de dados no Looker Studio.
 
-- **Google BigQuery** → para consultas SQL e manipulação de dados.  
-- **Looker Studio (Google Data Studio)** → para visualização dinâmica e interativa.  
+O objetivo foi integrar diferentes tabelas de um dataset de e-commerce para gerar uma visão consolidada de vendas, permitindo acompanhar indicadores de desempenho, analisar padrões de faturamento e identificar oportunidades de negócio.
 
-Os dados utilizados são fictícios, retirados do Kaggle, simulando o cenário de vendas de um e-commerce.  
-
----
-
-## Estrutura do Conjunto de Dados  
-
-O dataset se chama **`vendas`** e contém as seguintes tabelas:  
-
-### Tabela: Categoria  
-- **id** → identificador da categoria  
-- **name** → nome da categoria  
-
-### Tabela: Ordens (Pedidos)  
-- **id** → identificador do pedido  
-- **created_at** → data e hora em que o pedido foi feito  
-- **custom_id** → identificador do cliente (não utilizado nas análises)  
-- **status** → status do pedido (ex.: entregue, cancelado, pagamento pendente, carrinho)  
-
-### Tabela: Produto  
-- **id** → identificador do produto  
-- **name** → nome do produto  
-- **price** → preço unitário do produto  
-- **category_id** → referência à categoria do produto  
-
-### Tabela: Itens (Vendas)  
-- **id** → identificador da venda (linha)  
-- **order_id** → identificador do pedido (ligado à tabela de ordens)  
-- **product_id** → identificador do produto (ligado à tabela de produtos)  
-- **quantity** → quantidade vendida daquele produto no pedido  
-- **total_price** → valor total daquela venda (quantidade × preço)  
+Os dados utilizados são fictícios e foram obtidos no Kaggle para simular um ambiente real de análise de dados em e-commerce.
 
 ---
 
-## Consulta SQL (BigQuery)  
+## Objetivo do Projeto
 
-A base do projeto foi construída a partir de consultas SQL que integram múltiplas tabelas para gerar informações consolidadas.  
+Construir um painel interativo capaz de acompanhar o desempenho de vendas e permitir diferentes tipos de análise, como evolução do faturamento ao longo do tempo, produtos mais vendidos e desempenho por categoria.
 
-### Exemplo de consulta principal:  
+A proposta foi simular um cenário de monitoramento utilizado por equipes de negócio e análise de dados para apoiar a tomada de decisão.
+
+---
+
+## Ferramentas Utilizadas
+
+- SQL  
+- Google BigQuery  
+- Looker Studio  
+
+---
+
+## Estrutura do Conjunto de Dados
+
+O dataset utilizado se chama **vendas** e está organizado em quatro tabelas principais.
+
+### Categoria
+
+Contém as categorias de produtos disponíveis.
+
+Campos principais:
+
+- id — identificador da categoria  
+- name — nome da categoria  
+
+### Ordens (Pedidos)
+
+Tabela que registra os pedidos realizados na plataforma.
+
+Campos principais:
+
+- id — identificador do pedido  
+- created_at — data e hora da criação do pedido  
+- custom_id — identificador do cliente  
+- status — status do pedido (entregue, cancelado, pendente, carrinho)  
+
+### Produto
+
+Tabela que contém informações sobre os produtos vendidos.
+
+Campos principais:
+
+- id — identificador do produto  
+- name — nome do produto  
+- price — preço unitário  
+- category_id — categoria associada ao produto  
+
+### Itens (Vendas)
+
+Tabela que representa as vendas realizadas em cada pedido.
+
+Campos principais:
+
+- id — identificador da venda  
+- order_id — identificador do pedido  
+- product_id — identificador do produto  
+- quantity — quantidade vendida  
+- total_price — valor total da venda  
+
+---
+
+## Consulta SQL
+
+A base analítica do projeto foi construída a partir da integração das tabelas de pedidos, produtos e categorias.
+
+### Consulta principal utilizada
 
 ```sql
--- Visão geral das vendas
 SELECT 
     v.id AS venda_id,
     v.order_id,
@@ -57,7 +91,7 @@ SELECT
     o.status,
     p.name AS nome_produto,
     c.name AS nome_categoria
-FROM `e-commerce-420222.vendas.itens` AS v  -- Itens = Vendas
+FROM `e-commerce-420222.vendas.itens` AS v
 JOIN `e-commerce-420222.vendas.Ordens` AS o
     ON v.order_id = o.id
 JOIN `e-commerce-420222.vendas.Produto` AS p
@@ -66,38 +100,44 @@ JOIN `e-commerce-420222.vendas.Categoria` AS c
     ON p.category_id = c.id;
 ```
 
+Essa consulta consolida as informações necessárias para análise de vendas, permitindo relacionar pedidos, produtos e categorias em uma única estrutura de dados.
 
 ---
 
-## Painel no Looker Studio  
+## Dashboard no Looker Studio
 
-O painel construído no Looker Studio permite diferentes formas de análise:  
+O painel foi desenvolvido para facilitar a exploração dos dados e permitir diferentes perspectivas de análise.
 
-- **Busca por pedido** → ao digitar o número de um pedido, todos os gráficos são atualizados automaticamente.  
-- **Quantidade de produtos e Faturamento total** → indicadores principais que mostram a quantidade de itens vendidos e o faturamento acumulado.  
-- **Filtros por status** → acompanhamento de pedidos entregues, pendentes, cancelados e em carrinho.  
-- **Filtros por mês e ano** → análise temporal de períodos específicos.  
-- **Faturamento por categoria** → categorias mais relevantes em termos de receita.  
-- **Faturamento ao longo dos meses** → identificação de sazonalidade, promoções e quedas de vendas.  
-- **Top produtos vendidos** → produtos que mais geraram receita e quantidade vendida.  
-- **Faturamento por ano** → comparação entre anos para avaliar crescimento ou retração.  
+Principais funcionalidades do dashboard:
 
-### Link do Dashboard: https://lookerstudio.google.com/u/0/reporting/edb24dc7-37c4-4faf-9aad-b249303a2d19/page/xFDaF  
+- busca por número de pedido com atualização automática dos gráficos  
+- indicadores de quantidade total de produtos vendidos e faturamento  
+- filtros por status de pedido  
+- filtros por mês e ano  
+- análise de faturamento por categoria  
+- evolução do faturamento ao longo do tempo  
+- identificação dos produtos mais vendidos  
+- comparação de faturamento entre anos  
 
-![Imagem do Dash](image.png
-)
+### Dashboard interativo
 
----
-## Possíveis Insights  
+https://lookerstudio.google.com/u/0/reporting/edb24dc7-37c4-4faf-9aad-b249303a2d19/page/xFDaF
 
-Com esse painel é possível extrair diversos insights estratégicos, como:  
+### Visualização do Dashboard
 
-- Identificar quais categorias geram maior faturamento.  
-- Descobrir os produtos mais vendidos e direcionar campanhas de marketing.  
-- Acompanhar a evolução do faturamento ao longo dos meses.  
-- Comparar o desempenho ano a ano e avaliar crescimento ou retração.  
-- Monitorar status de pedidos e identificar gargalos (ex.: pedidos pendentes ou cancelados).  
-- Analisar impactos de sazonalidade em datas específicas (promoções ou datas comemorativas).  
+![Dashboard](image.png)
 
 ---
 
+## Possíveis Insights
+
+A partir do painel é possível identificar diferentes padrões de negócio, como:
+
+- categorias com maior participação no faturamento  
+- produtos responsáveis pelo maior volume de vendas  
+- evolução do faturamento ao longo dos meses  
+- possíveis efeitos de sazonalidade nas vendas  
+- comparação de desempenho entre diferentes períodos  
+- monitoramento de pedidos cancelados ou pendentes  
+
+Essas análises ajudam a identificar oportunidades de crescimento, ajustes de estratégia comercial e melhorias na gestão operacional.
